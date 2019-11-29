@@ -1,0 +1,33 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /usr/share/filebeat/edx-logs/*.log
+
+output.kafka:
+  # initial brokers for reading cluster metadata
+  hosts: ["kafka:9092"]
+
+  # message topic selection + partitioning
+  # topic: '%{[fields.log_topic]}'
+  topic: "Generated"
+  partition.round_robin:
+    reachable_only: false
+  version: '1.1.0'
+
+  required_acks: 1
+  compression: gzip
+  max_message_bytes: 1000000
+
+
+# filebeat.modules:
+#   - module: logstash
+#   - module: elasticsearch
+
+# output.logstash:
+#   hosts: ["logstash:5044"]
+   
+# setup.kibana:
+#   host: "http://kibana:5601"
+#   username: "elastic"  
+#   password: "changeme"

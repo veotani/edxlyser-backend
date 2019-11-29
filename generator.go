@@ -34,6 +34,5 @@ func main() {
 			log.Fatal(err)
 		}
 		fmt.Println("Written to topic:", i)
-		// time.Sleep(time.Millisecond * time.Duration(rand.Intn(4000)))
 	}
 }

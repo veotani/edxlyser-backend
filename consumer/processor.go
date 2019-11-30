@@ -14,7 +14,7 @@ const inputTopic = "Generated"
 func main() {
 	// Kafka consumer
 	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: []string{"kafka:9092"},
+		Brokers: []string{"localhost:9092"},
 		Topic:   inputTopic,
 		// GroupID:   "consumer-group-id-3",
 		Partition: 0,

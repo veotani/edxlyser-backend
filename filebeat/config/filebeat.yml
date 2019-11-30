@@ -5,7 +5,7 @@ filebeat.inputs:
       - /usr/share/filebeat/edx-logs/*.log
 
 output.kafka:
-  hosts: ["kafka:9092"]
+  hosts: ["localhost:9092"]
   topic: "Generated"
   partition.round_robin:
     reachable_only: false

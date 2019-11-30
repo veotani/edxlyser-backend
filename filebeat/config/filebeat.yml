@@ -3,13 +3,22 @@ filebeat.inputs:
     enabled: true
     paths:
       - /usr/share/filebeat/edx-logs/*.log
+    json.keys_under_root: true
+
+processors:
+  - decode_json_fields:
+      fields: ["event", "event_type"]
+      max_depth: 5
 
 output.kafka:
   hosts: ["localhost:9092"]
-  topic: "Generated"
   partition.round_robin:
     reachable_only: false
   version: '1.1.0'
   required_acks: 1
   compression: gzip
   max_message_bytes: 1000000
+  topics:
+    - topic: "Generated"
+      when.contains:
+        event_type: "video"

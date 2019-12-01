@@ -19,6 +19,16 @@ output.kafka:
   compression: gzip
   max_message_bytes: 1000000
   topics:
-    - topic: "Generated"
-      when.contains:
-        event_type: "video"
+    - topic: "VideoEvents"
+      when.or:
+        - equals: 
+            event_type: "seek_video"
+        - equals: 
+            event_type: "pause_video"
+        - equals: 
+            event_type: "stop_video"
+        - equals: 
+            event_type: "play_video"
+    - topic: "TestEvents"
+      when.equals: 
+        event_type: "problem_check"

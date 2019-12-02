@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"sync"
 	"time"
 
 	kafka "github.com/segmentio/kafka-go"
@@ -24,9 +23,10 @@ func main() {
 	})
 
 	for {
-		ctx, cancel := ontext.WithTimeout(context.Background(), 15*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+		defer cancel()
 
-		m, er := r.ReadMessage(ctx)
+		m, err := r.ReadMessage(ctx)
 		if err != nil {
 			fmt.Println(err)
 		}

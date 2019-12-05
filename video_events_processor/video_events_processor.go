@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
+	"github.com/olivere/elastic"
 	"github.com/segmentio/kafka-go"
 	_ "github.com/segmentio/kafka-go/gzip" // gzip is a package for log decompression
 )
@@ -42,11 +44,11 @@ const (
 
 // VideoEventDescription has all the data about video events for analysis
 type VideoEventDescription struct {
-	eventTime string
-	videoTime float64
-	username  string
-	videoID   string
-	eventType EventType
+	EventTime string    `json:"event_time"`
+	VideoTime float64   `json:"video_time"`
+	Username  string    `json:"username"`
+	VideoID   string    `json:"video_id"`
+	EventType EventType `json:"event_type"`
 }
 
 func determineType(log map[string]interface{}) (LogEventType, error) {
@@ -162,11 +164,11 @@ func parsePlayVideoEvent(log map[string]interface{}) (VideoEventDescription, err
 	}
 
 	videoEventDescription := VideoEventDescription{
-		eventTime: eventTime,
-		videoTime: videoTime,
-		username:  username,
-		videoID:   videoID,
-		eventType: PLAY,
+		EventTime: eventTime,
+		VideoTime: videoTime,
+		Username:  username,
+		VideoID:   videoID,
+		EventType: PLAY,
 	}
 
 	return videoEventDescription, nil
@@ -178,7 +180,7 @@ func parsePauseVideoEvent(log map[string]interface{}) (VideoEventDescription, er
 	if err != nil {
 		return VideoEventDescription{}, err
 	}
-	videoEventDescription.eventType = PAUSE
+	videoEventDescription.EventType = PAUSE
 
 	return videoEventDescription, nil
 }
@@ -230,11 +232,11 @@ func parseSeekVideoEvent(log map[string]interface{}) (VideoEventDescription, err
 	}
 
 	videoEventDescription := VideoEventDescription{
-		eventTime: eventTime,
-		videoTime: videoTime,
-		username:  username,
-		videoID:   videoID,
-		eventType: PAUSE,
+		EventTime: eventTime,
+		VideoTime: videoTime,
+		Username:  username,
+		VideoID:   videoID,
+		EventType: PAUSE,
 	}
 
 	return videoEventDescription, nil
@@ -246,7 +248,7 @@ func parseStopVideoEvent(log map[string]interface{}) (VideoEventDescription, err
 	if err != nil {
 		return VideoEventDescription{}, err
 	}
-	videoEventDescription.eventType = PAUSE
+	videoEventDescription.EventType = PAUSE
 
 	return videoEventDescription, nil
 }
@@ -254,6 +256,12 @@ func parseStopVideoEvent(log map[string]interface{}) (VideoEventDescription, err
 // Run process of getting logs from kafka, parsing them and putting to elastic
 func Run() {
 	kafkaCon := getKafkaConnection()
+	elasticCon, err := getElassticCon()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	countBadLogs := 0
 	for {
 		eventLog, err := getNextEvent(kafkaCon)
 		if err != nil {
@@ -290,31 +298,82 @@ func Run() {
 		if isInitialisedWithDefaultValues(videoEventDescription) {
 			log.Printf(
 				"Bad log: %v, %v, %v, %v, %v\n",
-				videoEventDescription.eventTime,
-				videoEventDescription.eventType,
-				videoEventDescription.username,
-				videoEventDescription.videoID,
-				videoEventDescription.videoTime,
+				videoEventDescription.EventTime,
+				videoEventDescription.EventType,
+				videoEventDescription.Username,
+				videoEventDescription.VideoID,
+				videoEventDescription.VideoTime,
 			)
-			time.Sleep(time.Hour)
+			countBadLogs++
+			fmt.Println(countBadLogs)
+			time.Sleep(time.Second)
 		} else {
-			log.Printf(
-				"New log: %v, %v, %v, %v, %v\n",
-				videoEventDescription.eventTime,
-				videoEventDescription.eventType,
-				videoEventDescription.username,
-				videoEventDescription.videoID,
-				videoEventDescription.videoTime,
-			)
+			// log.Printf(
+			// 	"New log: %v, %v, %v, %v, %v\n",
+			// 	videoEventDescription.eventTime,
+			// 	videoEventDescription.eventType,
+			// 	videoEventDescription.username,
+			// 	videoEventDescription.videoID,
+			// 	videoEventDescription.videoTime,
+			// )
+			addToElastic(videoEventDescription, elasticCon)
 		}
 
 	}
 }
 
 func isInitialisedWithDefaultValues(videoEventDescription VideoEventDescription) bool {
-	if videoEventDescription.eventTime == "" || videoEventDescription.videoTime == -1 ||
-		videoEventDescription.username == "" || videoEventDescription.videoID == "" {
+	if videoEventDescription.EventTime == "" || videoEventDescription.VideoTime == -1 ||
+		videoEventDescription.Username == "" || videoEventDescription.VideoID == "" {
 		return true
 	}
 	return false
+}
+
+func getElassticCon() (*elastic.Client, error) {
+	elasticURL := "http://localhost:9200"
+	client, err := elastic.NewClient(elastic.SetURL(elasticURL))
+	if err != nil {
+		return nil, err
+	}
+
+	exists, err := client.IndexExists("video_event_description").Do(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		mapping := `
+{
+	"settings":{
+		"number_of_shards":1,
+		"number_of_replicas":0
+	},
+	"mappings":{
+		"properties":{
+			"event_time": { "type": "date" },
+			"event_type": { "type": "keyword" },
+			"username": { "type": "keyword" },
+			"video_id": { "type": "keyword" },
+			"video_time": { "type": "double" }
+		}
+	}
+}
+`
+		_, err := client.CreateIndex("video_event_description").Body(mapping).Do(context.Background())
+		if err != nil {
+			return nil, err
+		}
+	}
+	return client, nil
+}
+
+func addToElastic(videoEventDescription VideoEventDescription, client *elastic.Client) error {
+	_, err := client.Index().
+		Index("video_event_description").
+		BodyJson(videoEventDescription).
+		Do(context.Background())
+	if err != nil {
+		return err
+	}
+	return nil
 }

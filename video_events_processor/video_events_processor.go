@@ -1,4 +1,4 @@
-package videoeventsprocessor
+package main
 
 import (
 	"context"
@@ -82,7 +82,8 @@ func determineType(log map[string]interface{}) (LogEventType, error) {
 // }
 
 func getNextEvent(connection *kafka.Reader) (map[string]interface{}, error) {
-	ctx, _ := context.WithTimeout(context.Background(), 15*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
 	m, err := connection.ReadMessage(ctx)
 	if err != nil {
 		return nil, err
@@ -256,10 +257,9 @@ func parseStopVideoEvent(log map[string]interface{}) (VideoEventDescription, err
 // Run process of getting logs from kafka, parsing them and putting to elastic
 func Run() {
 	kafkaCon := getKafkaConnection()
-	elasticCon, err := getElassticCon()
+	elasticCon, err := getElasticConUntilSuccess()
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
 	countBadLogs := 0
 	for {
@@ -308,14 +308,14 @@ func Run() {
 			fmt.Println(countBadLogs)
 			time.Sleep(time.Second)
 		} else {
-			// log.Printf(
-			// 	"New log: %v, %v, %v, %v, %v\n",
-			// 	videoEventDescription.eventTime,
-			// 	videoEventDescription.eventType,
-			// 	videoEventDescription.username,
-			// 	videoEventDescription.videoID,
-			// 	videoEventDescription.videoTime,
-			// )
+			log.Printf(
+				"New log: %v, %v, %v, %v, %v\n",
+				videoEventDescription.EventTime,
+				videoEventDescription.EventType,
+				videoEventDescription.Username,
+				videoEventDescription.VideoID,
+				videoEventDescription.VideoTime,
+			)
 			addToElastic(videoEventDescription, elasticCon)
 		}
 
@@ -328,6 +328,17 @@ func isInitialisedWithDefaultValues(videoEventDescription VideoEventDescription)
 		return true
 	}
 	return false
+}
+
+func getElasticConUntilSuccess() (*elastic.Client, error) {
+	for {
+		elasticCon, err := getElassticCon()
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		return elasticCon, nil
+	}
 }
 
 func getElassticCon() (*elastic.Client, error) {

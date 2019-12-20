@@ -1,3 +1,18 @@
+## About this project
+In this project we try to build a system for online-course data analysis. We are working with Sains-Petersburg State University online-course creators and maintainers to take data from. We aim to solve several problems:
+1. Continous data collection. The data is produced by online-course platform. It is hosted on SPSU servers.
+2. Data visualisation and analysis.
+The analysis within this project is not going to be a final analysis. Our role is to provide representations for different specialists: sociologists, psychologists, etc. 
+This system is also going to be used in adaptive learning system. In such learning systems each student gets it's own path to complete a course: for example some need more video lectures meanwhile others learn better by reading.
+
+### Tools
+To build this system we are going to use following technologies:
+1. Docker
+2. Golang
+3. ELK (Elasticsearch, Kibana, Logstash)
+4. Kafka
+5. Kubernetes (in the future)
+
 ## Instructions
 *Instructions are Linux only*
 

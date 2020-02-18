@@ -44,14 +44,14 @@ services:
     volumes:
       - data03:/usr/share/elasticsearch/data:rw
 
-  videologparser:
-    build:
-      context: video_events_processor/
-    depends_on: 
-      - kafka
-      - filebeat
-      - elastic
-    network_mode: "host"
+  # videologparser:
+  #   build:
+  #     context: video_events_processor/
+  #   depends_on: 
+  #     - kafka
+  #     - filebeat
+  #     - elastic
+  #   network_mode: "host"
 
 volumes:
   data03:

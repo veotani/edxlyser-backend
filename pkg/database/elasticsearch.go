@@ -4,6 +4,7 @@ import (
 	"context"
 	"kafka-log-processor/pkg/models"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/olivere/elastic"
@@ -32,7 +33,7 @@ func (r *connectionRetrier) Retry(ctx context.Context, retry int, req *http.Requ
 
 // Connect to elasticsearch
 func (es *ElasticService) Connect(host string, port int) error {
-	elasticURL := "http://" + host + ":" + string(port)
+	elasticURL := "http://" + host + ":" + strconv.Itoa(port)
 	client, err := elastic.NewClient(
 		elastic.SetURL(elasticURL),
 		elastic.SetRetrier(newConnectionRetrier()),

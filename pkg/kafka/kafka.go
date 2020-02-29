@@ -2,9 +2,11 @@ package kafka
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/segmentio/kafka-go"
+	_ "github.com/segmentio/kafka-go/gzip" // gzip is a package for log decompression
 )
 
 // Service is an interface for kafka
@@ -26,7 +28,7 @@ func (s Service) NextMessage() ([]byte, error) {
 
 func newConnection(host string, port int, topic string) Service {
 	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:   []string{host + ":" + string(port)},
+		Brokers:   []string{host + ":" + strconv.Itoa(port)},
 		Topic:     topic,
 		Partition: 0,
 		MinBytes:  10e3, // 10KB

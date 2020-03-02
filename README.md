@@ -18,12 +18,12 @@ To build this system we are going to use following technologies:
 
 Assuming you have docker and docker-compose installed.
 1. First, give filebeat appropriate rights:
-``chmod go-w filebeat/config/filebeat.yml ``
+``chmod go-w build/filebeat/config/filebeat.yml ``
 2. Second, run the docker-compose
-``sudo docker-compose up -d``
-3. Finally, put some edx logs files into "logs" folder
+``sudo docker-compose -f build/docker-compose-dev.yml up``
+3. Finally, put some edx logs files into "build/logs" folder
 
-System will start to monitor logs in "logs" folder, then send them to kafka and take this logs in ``processor.go``.
+System will start to monitor logs in "build/logs" folder, then send them to kafka and take this logs in ``processor.go``.
 
 ## Plans
 There should be many different go services, that take logs from kafka and process them. Unsolved tasks are:

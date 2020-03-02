@@ -35,6 +35,10 @@ func ParseVideoEvent(log []byte) (models.VideoEventDescription, error) {
 		return models.VideoEventDescription{}, errors.New("Unexpected log type")
 	}
 
+	if err != nil {
+		return models.VideoEventDescription{}, err
+	}
+
 	return videoEventDescription, nil
 }
 
@@ -87,7 +91,7 @@ func parsePlayVideoEvent(log map[string]interface{}) (models.VideoEventDescripti
 	}
 
 	// Get "username" field
-	username, err := helpers.ExtractStringFieldFromGenericMap(log, "event")
+	username, err := helpers.ExtractStringFieldFromGenericMap(log, "username")
 	if err != nil {
 		return models.VideoEventDescription{}, err
 	}
@@ -147,7 +151,7 @@ func parseSeekVideoEvent(log map[string]interface{}) (models.VideoEventDescripti
 	}
 
 	// Get "username" field
-	username, err := helpers.ExtractStringFieldFromGenericMap(log, "event")
+	username, err := helpers.ExtractStringFieldFromGenericMap(log, "username")
 	if err != nil {
 		return models.VideoEventDescription{}, err
 	}

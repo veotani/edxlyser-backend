@@ -1,16 +1,5 @@
 package models
 
-// LogEventType is a string that can be in "event_type" field in edx logs
-type LogEventType string
-
-// Types of logs for video events
-const (
-	PlayVideo  LogEventType = "play_video"
-	PauseVideo LogEventType = "pause_video"
-	SeekVideo  LogEventType = "seek_video"
-	StopVideo  LogEventType = "stop_video"
-)
-
 // EventType describe types for internal processing (within this system). They are mapped from
 // LogEventType.
 type EventType string

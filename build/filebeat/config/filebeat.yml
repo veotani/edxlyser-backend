@@ -30,5 +30,10 @@ output.kafka:
         - equals: 
             event_type: "play_video"
     - topic: "TestEvents"
-      when.equals: 
-        event_type: "problem_check"
+      when.or:
+        - equals: 
+            event_type: "edx.grades.problem.submitted"
+        - equals: 
+            event_type: "problem_show"
+        - equals: 
+            event_type: "showanswer"

@@ -15,7 +15,7 @@ services:
       KAFKA_ADVERTISED_HOST_NAME: localhost
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_ZOOKEEPER_CONNECT: localhost:2181
-      KAFKA_CREATE_TOPICS: "VideoEvents:1:1,TestEvents:1:1"
+      KAFKA_CREATE_TOPICS: "VideoEvents:1:1,TestEvents:1:1,SequentialEvents:1:1,BookmarksEvents:1:1,LinksEvents:1:1"
       KAFKA_DELETE_TOPIC_ENABLE: "true"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

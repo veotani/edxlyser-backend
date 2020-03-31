@@ -37,3 +37,21 @@ output.kafka:
             event_type: "problem_show"
         - equals: 
             event_type: "showanswer"
+    - topic: "SequentialEvents"
+      when.or:
+        - equals: 
+            event_type: "seq_goto"
+        - equals: 
+            event_type: "seq_next"
+        - equals: 
+            event_type: "seq_prev"
+    - topic: "BookmarksEvents"
+      when.or:
+        - equals: 
+            event_type: "edx.bookmark.removed"
+        - equals: 
+            event_type: "edx.bookmark.added"
+    - topic: "LinksEvents"
+      when.or:        
+        - equals: 
+            event_type: "edx.ui.lms.link_clicked"

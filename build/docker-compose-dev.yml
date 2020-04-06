@@ -43,6 +43,23 @@ services:
     network_mode: "host"
     volumes:
       - data03:/usr/share/elasticsearch/data:rw
+  
+  kibana:
+    # build:
+    #   context: kibana/
+    #   args:
+    #     ELK_VERSION: $ELK_VERSION
+    image: docker.elastic.co/kibana/kibana:7.5.0
+    volumes:
+      - type: bind
+        source: ./kibana/config/kibana.yml
+        target: /usr/share/kibana/config/kibana.yml
+        read_only: true
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elastic
+    network_mode: "host"
 
   # videologparser:
   #   build:

@@ -7,7 +7,7 @@ package models
 type BookmarksEventDescription struct {
 	EventTime string `json:"event_time"`
 	Username  string `json:"username"`
-	ID        string `json:"old"`
+	ID        string `json:"id"`
 	EventType string `json:"event_type"`
 	IsAdded   bool   `json:"is_added"`
 }

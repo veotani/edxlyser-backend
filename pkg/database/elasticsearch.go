@@ -42,6 +42,7 @@ func (es *ElasticService) Connect(host string, port int) error {
 		return err
 	}
 
+	// Index for video events
 	exists, err := client.IndexExists("video_event_description").Do(context.Background())
 	if err != nil {
 		return err
@@ -69,6 +70,124 @@ func (es *ElasticService) Connect(host string, port int) error {
 			return err
 		}
 	}
+
+	// Index for booksmark events
+	exists, err = client.IndexExists("bookmarks_event_description").Do(context.Background())
+	if err != nil {
+		return err
+	}
+	if !exists {
+		mapping := `
+{
+	"settings":{
+		"number_of_shards":1,
+		"number_of_replicas":0
+	},
+	"mappings":{
+		"properties":{
+			"event_time": { "type": "date" },
+			"event_type": { "type": "keyword" },
+			"username": { "type": "keyword" },
+			"id": { "type": "keyword" },
+			"is_added": { "type": "binary" }
+		}
+	}
+}
+`
+		_, err := client.CreateIndex("bookmarks_event_description").Body(mapping).Do(context.Background())
+		if err != nil {
+			return err
+		}
+	}
+
+	// Index for link events
+	exists, err = client.IndexExists("link_event_description").Do(context.Background())
+	if err != nil {
+		return err
+	}
+	if !exists {
+		mapping := `
+{
+	"settings":{
+		"number_of_shards":1,
+		"number_of_replicas":0
+	},
+	"mappings":{
+		"properties":{
+			"event_time": { "type": "date" },
+			"event_type": { "type": "keyword" },
+			"username": { "type": "keyword" },
+			"current_url": { "type": "keyword" },
+			"target_url": { "type": "keyword" }
+		}
+	}
+}
+`
+		_, err := client.CreateIndex("link_event_description").Body(mapping).Do(context.Background())
+		if err != nil {
+			return err
+		}
+	}
+
+	// Index for problem events
+	exists, err = client.IndexExists("problem_event_description").Do(context.Background())
+	if err != nil {
+		return err
+	}
+	if !exists {
+		mapping := `
+{
+	"settings":{
+		"number_of_shards":1,
+		"number_of_replicas":0
+	},
+	"mappings":{
+		"properties":{
+			"event_time": { "type": "date" },
+			"event_type": { "type": "keyword" },
+			"username": { "type": "keyword" },
+			"problem_id": { "type": "keyword" },
+			"weighted_earned": { "type": "double" },
+			"weighted_possible": { "type": "double" }
+		}
+	}
+}
+`
+		_, err := client.CreateIndex("problem_event_description").Body(mapping).Do(context.Background())
+		if err != nil {
+			return err
+		}
+	}
+
+	// Index for sequential events
+	exists, err = client.IndexExists("sequential_event_description").Do(context.Background())
+	if err != nil {
+		return err
+	}
+	if !exists {
+		mapping := `
+{
+	"settings":{
+		"number_of_shards":1,
+		"number_of_replicas":0
+	},
+	"mappings":{
+		"properties":{
+			"event_time": { "type": "date" },
+			"event_type": { "type": "keyword" },
+			"username": { "type": "keyword" },
+			"old": { "type": "integer" },
+			"new": { "type": "integer" }
+		}
+	}
+}
+`
+		_, err := client.CreateIndex("sequential_event_description").Body(mapping).Do(context.Background())
+		if err != nil {
+			return err
+		}
+	}
+
 	es.client = client
 	return nil
 
@@ -79,6 +198,54 @@ func (es ElasticService) AddVideoEventDescription(videoEventDescription models.V
 	_, err := es.client.Index().
 		Index("video_event_description").
 		BodyJson(videoEventDescription).
+		Do(context.Background())
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// AddBooksmarkEventDescription adds information of a parsed log into elasticsearch
+func (es ElasticService) AddBooksmarkEventDescription(booksmarkEventDescription models.BookmarksEventDescription) error {
+	_, err := es.client.Index().
+		Index("bookmarks_event_description").
+		BodyJson(booksmarkEventDescription).
+		Do(context.Background())
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// AddLinkEventDescription adds information of a parsed log into elasticsearch
+func (es ElasticService) AddLinkEventDescription(linkEventDescription models.LinkEventDescription) error {
+	_, err := es.client.Index().
+		Index("link_event_description").
+		BodyJson(linkEventDescription).
+		Do(context.Background())
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// AddProblemEventDescription adds information of a parsed log into elasticsearch
+func (es ElasticService) AddProblemEventDescription(problemEventDescription models.ProblemEventDescription) error {
+	_, err := es.client.Index().
+		Index("problem_event_description").
+		BodyJson(problemEventDescription).
+		Do(context.Background())
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// AddSequentialMoveEventDescription adds information of a parsed log into elasticsearch
+func (es ElasticService) AddSequentialMoveEventDescription(sequentialMoveEventDescription models.SequentialMoveEventDescription) error {
+	_, err := es.client.Index().
+		Index("sequential_event_description").
+		BodyJson(sequentialMoveEventDescription).
 		Do(context.Background())
 	if err != nil {
 		return err

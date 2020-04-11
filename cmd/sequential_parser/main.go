@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"kafka-log-processor/configs"
+	"kafka-log-processor/pkg/database"
 	"kafka-log-processor/pkg/kafka"
 	"kafka-log-processor/pkg/parsers"
 	"log"
@@ -15,6 +15,10 @@ func main() {
 	}
 
 	kafkaService := kafka.NewSequentialTopicKafka(config.Kafka.Host, config.Kafka.Port)
+	es := database.ElasticService{}
+	if err = es.Connect(config.Elastic.Host, config.Elastic.Port); err != nil {
+		log.Fatal(err)
+	}
 
 	for {
 		eventLog, err := kafkaService.NextMessage()
@@ -31,6 +35,10 @@ func main() {
 			continue
 		}
 
-		fmt.Println(sequentialEvent)
+		if err = es.AddSequentialMoveEventDescription(sequentialEvent); err != nil {
+			log.Println("cannot save event to elasticsearch")
+			log.Println(err)
+			continue
+		}
 	}
 }

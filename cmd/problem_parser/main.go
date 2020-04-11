@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"kafka-log-processor/configs"
+	"kafka-log-processor/pkg/database"
 	"kafka-log-processor/pkg/kafka"
 	"kafka-log-processor/pkg/parsers"
 	"log"
@@ -15,6 +15,11 @@ func main() {
 	}
 
 	kafkaService := kafka.NewProblemTopicKafka(config.Kafka.Host, config.Kafka.Port)
+	es := database.ElasticService{}
+	err = es.Connect(config.Elastic.Host, config.Elastic.Port)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	for {
 		eventLog, err := kafkaService.NextMessage()
@@ -31,6 +36,10 @@ func main() {
 			continue
 		}
 
-		fmt.Println(problemEvent)
+		if err = es.AddProblemEventDescription(problemEvent); err != nil {
+			log.Println("Cannton send problem event to elastic")
+			log.Println(err)
+			continue
+		}
 	}
 }

@@ -19,5 +19,6 @@ func ParseLinkEvent(log []byte) (models.LinkEventDescription, error) {
 		EventType:  logObject.EventType,
 		CurrentURL: logObject.Event.CurrentURL,
 		TargetURL:  logObject.Event.TargetURL,
+		CourseID:   logObject.LinkContext.CourseID,
 	}, nil
 }

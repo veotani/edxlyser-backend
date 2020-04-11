@@ -2,10 +2,11 @@ package models
 
 // VideoLog is a definition of a log object with event type "play_video", "pause_video", "stop_video" and "seek_video"
 type VideoLog struct {
-	Username  string        `json:"username"`
-	EventType string        `json:"event_type"`
-	Time      string        `json:"time"`
-	Event     VideoEventLog `json:"event"`
+	Username     string        `json:"username"`
+	EventType    string        `json:"event_type"`
+	Time         string        `json:"time"`
+	Event        VideoEventLog `json:"event"`
+	VideoContext LogContext    `json:"context"`
 }
 
 // VideoEventLog is a definition of an event object within VideoLog

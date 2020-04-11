@@ -9,4 +9,5 @@ type ProblemEventDescription struct {
 	EventType        string  `json:"event_type"`
 	WeightedEarned   float64 `json:"weighted_earned"`
 	WeightedPossible float64 `json:"weighted_possible"`
+	CourseID         string  `json:"course_id"`
 }

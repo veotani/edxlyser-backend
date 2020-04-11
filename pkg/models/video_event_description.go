@@ -23,4 +23,5 @@ type VideoEventDescription struct {
 	Username  string    `json:"username"`
 	VideoID   string    `json:"video_id"`
 	EventType EventType `json:"event_type"`
+	CourseID  string    `json:"course_id"`
 }

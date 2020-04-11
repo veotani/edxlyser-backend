@@ -10,4 +10,5 @@ type BookmarksEventDescription struct {
 	ID        string `json:"id"`
 	EventType string `json:"event_type"`
 	IsAdded   bool   `json:"is_added"`
+	CourseID  string `json:"course_id"`
 }

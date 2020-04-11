@@ -7,4 +7,5 @@ type LinkEventDescription struct {
 	EventType  string `json:"event_type"`
 	CurrentURL string `json:"current_url"`
 	TargetURL  string `json:"target_url"`
+	CourseID   string `json:"course_id"`
 }

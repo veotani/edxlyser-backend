@@ -21,6 +21,7 @@ func ParseVideoEvent(log []byte) (models.VideoEventDescription, error) {
 			EventType: models.PLAY,
 			VideoID:   logObject.Event.ID,
 			VideoTime: logObject.Event.CurrentTime,
+			CourseID:  logObject.VideoContext.CourseID,
 		}, nil
 	}
 
@@ -31,6 +32,7 @@ func ParseVideoEvent(log []byte) (models.VideoEventDescription, error) {
 			EventType: models.PAUSE,
 			VideoID:   logObject.Event.ID,
 			VideoTime: logObject.Event.OldTime,
+			CourseID:  logObject.VideoContext.CourseID,
 		}, nil
 	}
 
@@ -40,5 +42,6 @@ func ParseVideoEvent(log []byte) (models.VideoEventDescription, error) {
 		EventType: models.PAUSE,
 		VideoID:   logObject.Event.ID,
 		VideoTime: logObject.Event.CurrentTime,
+		CourseID:  logObject.VideoContext.CourseID,
 	}, nil
 }

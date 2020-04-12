@@ -7,4 +7,5 @@ type SequentialMoveEventDescription struct {
 	Old       int    `json:"old"`
 	EventType string `json:"event_type"`
 	New       int    `json:"new"`
+	CourseID  string `json:"course_id"`
 }

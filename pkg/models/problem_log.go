@@ -2,10 +2,11 @@ package models
 
 // ProblemLog is a definition of a log object with event type "edx.grades.problem.submitted", "problem_show" or "showanswer"
 type ProblemLog struct {
-	Username  string          `json:"username"`
-	EventType string          `json:"event_type"`
-	Time      string          `json:"time"`
-	Event     ProblemEventLog `json:"event"`
+	Username       string          `json:"username"`
+	EventType      string          `json:"event_type"`
+	Time           string          `json:"time"`
+	Event          ProblemEventLog `json:"event"`
+	ProblemContext LogContext      `json:"context"`
 }
 
 // ProblemEventLog is a definition of an event object within ProblemLog

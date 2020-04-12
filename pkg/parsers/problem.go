@@ -39,5 +39,6 @@ func ParseProblemEvent(log []byte) (models.ProblemEventDescription, error) {
 		EventType:        logObject.EventType,
 		WeightedEarned:   logObject.Event.WeightedEarned,
 		WeightedPossible: logObject.Event.WeightedPossible,
+		CourseID:         logObject.ProblemContext.CourseID,
 	}, nil
 }

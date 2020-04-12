@@ -60,7 +60,8 @@ func (es *ElasticService) Connect(host string, port int) error {
 			"event_type": { "type": "keyword" },
 			"username": { "type": "keyword" },
 			"video_id": { "type": "keyword" },
-			"video_time": { "type": "double" }
+			"video_time": { "type": "double" },
+			"course_id": { "type": "keyword" }
 		}
 	}
 }
@@ -89,7 +90,8 @@ func (es *ElasticService) Connect(host string, port int) error {
 			"event_type": { "type": "keyword" },
 			"username": { "type": "keyword" },
 			"id": { "type": "keyword" },
-			"is_added": { "type": "binary" }
+			"is_added": { "type": "binary" },
+			"course_id": { "type": "keyword" }
 		}
 	}
 }
@@ -118,7 +120,8 @@ func (es *ElasticService) Connect(host string, port int) error {
 			"event_type": { "type": "keyword" },
 			"username": { "type": "keyword" },
 			"current_url": { "type": "keyword" },
-			"target_url": { "type": "keyword" }
+			"target_url": { "type": "keyword" },
+			"course_id": { "type": "keyword" }
 		}
 	}
 }
@@ -148,7 +151,8 @@ func (es *ElasticService) Connect(host string, port int) error {
 			"username": { "type": "keyword" },
 			"problem_id": { "type": "keyword" },
 			"weighted_earned": { "type": "double" },
-			"weighted_possible": { "type": "double" }
+			"weighted_possible": { "type": "double" },
+			"course_id": { "type": "keyword" }
 		}
 	}
 }
@@ -177,7 +181,8 @@ func (es *ElasticService) Connect(host string, port int) error {
 			"event_type": { "type": "keyword" },
 			"username": { "type": "keyword" },
 			"old": { "type": "integer" },
-			"new": { "type": "integer" }
+			"new": { "type": "integer" },
+			"course_id": { "type": "keyword" }
 		}
 	}
 }

@@ -19,5 +19,6 @@ func ParseSequentialEvent(log []byte) (models.SequentialMoveEventDescription, er
 		EventType: logObject.EventType,
 		New:       logObject.Event.New,
 		Old:       logObject.Event.Old,
+		CourseID:  logObject.SequentialContext.CourseID,
 	}, nil
 }

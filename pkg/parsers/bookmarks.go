@@ -20,5 +20,6 @@ func ParseBookmarksEvent(log []byte) (models.BookmarksEventDescription, error) {
 		EventType: logObject.EventType,
 		ID:        logObject.Event.ComponentUsageID,
 		IsAdded:   isAdded,
+		CourseID:  logObject.BookmarksContext.CourseID,
 	}, nil
 }

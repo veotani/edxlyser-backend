@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/olivere/elastic"
+	edxstruct "github.com/veotani/edx-structure-json"
 )
 
 // ElasticService to complete all the elasticsearch requests
@@ -193,9 +194,110 @@ func (es *ElasticService) Connect(host string, port int) error {
 		}
 	}
 
+	// Index for course structure
+	exists, err = client.IndexExists("course_structure").Do(context.Background())
+	if err != nil {
+		return err
+	}
+	if !exists {
+		mapping := `
+{
+	"settings":{
+		"number_of_shards":1,
+		"number_of_replicas":0
+	},
+	"mappings":{
+		"properties":{
+			"course": {
+				"properties": {
+					"display_name": {"type": "keyword"},
+					"course_code": {"type": "keyword"},
+					"course_run": {"type": "keyword"},
+					"chapters": {
+						"properties": {
+							"url_name": {"type": "keyword"},
+							"display_name": {"type": "keyword"},
+							"sequentials": {
+								"properties": {
+									"display_name": {"type": "keyword"},
+									"url_name": {"type": "keyword"},
+									"verticals": {
+										"properties": {
+											"display_name": {"type": "keyword"},
+											"url_name": {"type": "keyword"},
+											"problems": {
+												"properties": {
+													"display_name": {"type": "keyword"},
+													"url_name": {"type": "keyword"}
+												}
+											},
+											"discussions": {
+												"properties": {
+													"url_name": {"type": "keyword"}
+												}
+											},
+											"htmls": {
+												"properties": {
+													"display_name": {"type": "keyword"},
+													"url_name": {"type": "keyword"}
+												}
+											},
+											"open_assessments": {
+												"properties": {
+													"url_name": {"type": "keyword"}
+												}
+											},
+											"library_contents": {
+												"properties": {
+													"display_name": {"type": "keyword"},
+													"url_name": {"type": "keyword"},
+													"problems": {
+														"properties": {
+															"display_name": {"type": "keyword"},
+															"url_name": {"type": "keyword"}
+														}
+													}
+												}
+											},
+											"videos": {
+												"properties": {
+													"display_name": {"type": "keyword"},
+													"url_name": {"type": "keyword"},
+													"duration": {"type": "keyword"}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				} 
+			}
+		}
+	}
+}
+`
+		_, err := client.CreateIndex("course_structure").Body(mapping).Do(context.Background())
+		if err != nil {
+			return err
+		}
+	}
+
 	es.client = client
 	return nil
+}
 
+// AddCourseStructure adds information of course structure
+func (es ElasticService) AddCourseStructure(course edxstruct.Course) error {
+	_, err := es.client.Index().
+		Index("course_structure").
+		BodyJson(course).
+		Do(context.Background())
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // AddVideoEventDescription adds information of a parsed log into elasticsearch

@@ -11,6 +11,16 @@ import (
 	edxstruct "github.com/veotani/edx-structure-json"
 )
 
+// Index names
+const (
+	CourseStructureIndexName            = "course_structure"
+	VideoEventDescriptionIndexName      = "video_event_description"
+	BookmarsEventDescriptionIndexName   = "bookmarks_event_description"
+	LinkEventDescriptionIndexName       = "link_event_description"
+	ProblemEventDescriptionIndexName    = "problem_event_description"
+	SequentialEventDescriptionIndexName = "sequential_event_description"
+)
+
 // ElasticService to complete all the elasticsearch requests
 type ElasticService struct {
 	client *elastic.Client
@@ -44,7 +54,7 @@ func (es *ElasticService) Connect(host string, port int) error {
 	}
 
 	// Index for video events
-	exists, err := client.IndexExists("video_event_description").Do(context.Background())
+	exists, err := client.IndexExists(VideoEventDescriptionIndexName).Do(context.Background())
 	if err != nil {
 		return err
 	}
@@ -67,14 +77,14 @@ func (es *ElasticService) Connect(host string, port int) error {
 	}
 }
 `
-		_, err := client.CreateIndex("video_event_description").Body(mapping).Do(context.Background())
+		_, err := client.CreateIndex(VideoEventDescriptionIndexName).Body(mapping).Do(context.Background())
 		if err != nil {
 			return err
 		}
 	}
 
 	// Index for booksmark events
-	exists, err = client.IndexExists("bookmarks_event_description").Do(context.Background())
+	exists, err = client.IndexExists(BookmarsEventDescriptionIndexName).Do(context.Background())
 	if err != nil {
 		return err
 	}
@@ -97,14 +107,14 @@ func (es *ElasticService) Connect(host string, port int) error {
 	}
 }
 `
-		_, err := client.CreateIndex("bookmarks_event_description").Body(mapping).Do(context.Background())
+		_, err := client.CreateIndex(BookmarsEventDescriptionIndexName).Body(mapping).Do(context.Background())
 		if err != nil {
 			return err
 		}
 	}
 
 	// Index for link events
-	exists, err = client.IndexExists("link_event_description").Do(context.Background())
+	exists, err = client.IndexExists(LinkEventDescriptionIndexName).Do(context.Background())
 	if err != nil {
 		return err
 	}
@@ -127,14 +137,14 @@ func (es *ElasticService) Connect(host string, port int) error {
 	}
 }
 `
-		_, err := client.CreateIndex("link_event_description").Body(mapping).Do(context.Background())
+		_, err := client.CreateIndex(LinkEventDescriptionIndexName).Body(mapping).Do(context.Background())
 		if err != nil {
 			return err
 		}
 	}
 
 	// Index for problem events
-	exists, err = client.IndexExists("problem_event_description").Do(context.Background())
+	exists, err = client.IndexExists(ProblemEventDescriptionIndexName).Do(context.Background())
 	if err != nil {
 		return err
 	}
@@ -158,14 +168,14 @@ func (es *ElasticService) Connect(host string, port int) error {
 	}
 }
 `
-		_, err := client.CreateIndex("problem_event_description").Body(mapping).Do(context.Background())
+		_, err := client.CreateIndex(ProblemEventDescriptionIndexName).Body(mapping).Do(context.Background())
 		if err != nil {
 			return err
 		}
 	}
 
 	// Index for sequential events
-	exists, err = client.IndexExists("sequential_event_description").Do(context.Background())
+	exists, err = client.IndexExists(SequentialEventDescriptionIndexName).Do(context.Background())
 	if err != nil {
 		return err
 	}
@@ -188,14 +198,14 @@ func (es *ElasticService) Connect(host string, port int) error {
 	}
 }
 `
-		_, err := client.CreateIndex("sequential_event_description").Body(mapping).Do(context.Background())
+		_, err := client.CreateIndex(SequentialEventDescriptionIndexName).Body(mapping).Do(context.Background())
 		if err != nil {
 			return err
 		}
 	}
 
 	// Index for course structure
-	exists, err = client.IndexExists("course_structure").Do(context.Background())
+	exists, err = client.IndexExists(CourseCourseStructureIndexName).Do(context.Background())
 	if err != nil {
 		return err
 	}
@@ -278,7 +288,7 @@ func (es *ElasticService) Connect(host string, port int) error {
 	}
 }
 `
-		_, err := client.CreateIndex("course_structure").Body(mapping).Do(context.Background())
+		_, err := client.CreateIndex(CourseCourseStructureIndexName).Body(mapping).Do(context.Background())
 		if err != nil {
 			return err
 		}
@@ -291,7 +301,7 @@ func (es *ElasticService) Connect(host string, port int) error {
 // AddCourseStructure adds information of course structure
 func (es ElasticService) AddCourseStructure(course edxstruct.Course) error {
 	_, err := es.client.Index().
-		Index("course_structure").
+		Index(CourseCourseStructureIndexName).
 		BodyJson(course).
 		Do(context.Background())
 	if err != nil {
@@ -303,7 +313,7 @@ func (es ElasticService) AddCourseStructure(course edxstruct.Course) error {
 // AddVideoEventDescription adds information of a parsed log into elasticsearch
 func (es ElasticService) AddVideoEventDescription(videoEventDescription models.VideoEventDescription) error {
 	_, err := es.client.Index().
-		Index("video_event_description").
+		Index(VideoEventDescriptionIndexName).
 		BodyJson(videoEventDescription).
 		Do(context.Background())
 	if err != nil {
@@ -315,7 +325,7 @@ func (es ElasticService) AddVideoEventDescription(videoEventDescription models.V
 // AddBooksmarkEventDescription adds information of a parsed log into elasticsearch
 func (es ElasticService) AddBooksmarkEventDescription(booksmarkEventDescription models.BookmarksEventDescription) error {
 	_, err := es.client.Index().
-		Index("bookmarks_event_description").
+		Index(BookmarsEventDescriptionIndexName).
 		BodyJson(booksmarkEventDescription).
 		Do(context.Background())
 	if err != nil {
@@ -327,7 +337,7 @@ func (es ElasticService) AddBooksmarkEventDescription(booksmarkEventDescription 
 // AddLinkEventDescription adds information of a parsed log into elasticsearch
 func (es ElasticService) AddLinkEventDescription(linkEventDescription models.LinkEventDescription) error {
 	_, err := es.client.Index().
-		Index("link_event_description").
+		Index(LinkEventDescriptionIndexName).
 		BodyJson(linkEventDescription).
 		Do(context.Background())
 	if err != nil {
@@ -339,7 +349,7 @@ func (es ElasticService) AddLinkEventDescription(linkEventDescription models.Lin
 // AddProblemEventDescription adds information of a parsed log into elasticsearch
 func (es ElasticService) AddProblemEventDescription(problemEventDescription models.ProblemEventDescription) error {
 	_, err := es.client.Index().
-		Index("problem_event_description").
+		Index(ProblemEventDescriptionIndexName).
 		BodyJson(problemEventDescription).
 		Do(context.Background())
 	if err != nil {
@@ -351,7 +361,7 @@ func (es ElasticService) AddProblemEventDescription(problemEventDescription mode
 // AddSequentialMoveEventDescription adds information of a parsed log into elasticsearch
 func (es ElasticService) AddSequentialMoveEventDescription(sequentialMoveEventDescription models.SequentialMoveEventDescription) error {
 	_, err := es.client.Index().
-		Index("sequential_event_description").
+		Index(SequentialEventDescriptionIndexName).
 		BodyJson(sequentialMoveEventDescription).
 		Do(context.Background())
 	if err != nil {

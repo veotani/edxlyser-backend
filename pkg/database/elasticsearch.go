@@ -205,7 +205,7 @@ func (es *ElasticService) Connect(host string, port int) error {
 	}
 
 	// Index for course structure
-	exists, err = client.IndexExists(CourseCourseStructureIndexName).Do(context.Background())
+	exists, err = client.IndexExists(CourseStructureIndexName).Do(context.Background())
 	if err != nil {
 		return err
 	}
@@ -288,7 +288,7 @@ func (es *ElasticService) Connect(host string, port int) error {
 	}
 }
 `
-		_, err := client.CreateIndex(CourseCourseStructureIndexName).Body(mapping).Do(context.Background())
+		_, err := client.CreateIndex(CourseStructureIndexName).Body(mapping).Do(context.Background())
 		if err != nil {
 			return err
 		}
@@ -301,7 +301,7 @@ func (es *ElasticService) Connect(host string, port int) error {
 // AddCourseStructure adds information of course structure
 func (es ElasticService) AddCourseStructure(course edxstruct.Course) error {
 	_, err := es.client.Index().
-		Index(CourseCourseStructureIndexName).
+		Index(CourseStructureIndexName).
 		BodyJson(course).
 		Do(context.Background())
 	if err != nil {

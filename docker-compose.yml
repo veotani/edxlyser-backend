@@ -3,36 +3,29 @@ version: '3.2'
 services:
   zookeeper:
     image: wurstmeister/zookeeper
-    ports:
-      - "2181:2181"
-    network_mode: "host"
 
   kafka:
     image: wurstmeister/kafka:latest
-    ports:
-      - "9092:9092"
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_ADVERTISED_HOST_NAME: kafka
       KAFKA_ADVERTISED_PORT: 9092
-      KAFKA_ZOOKEEPER_CONNECT: localhost:2181
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_CREATE_TOPICS: "VideoEvents:1:1,TestEvents:1:1,SequentialEvents:1:1,BookmarksEvents:1:1,LinksEvents:1:1"
       KAFKA_DELETE_TOPIC_ENABLE: "true"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    network_mode: "host"
 
   filebeat:
     build:
-      context: filebeat/
+      context: ./build/filebeat/
     volumes:
-      - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./build/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - type: bind
-        source: ./logs
+        source: ./build/logs
         target: /usr/share/filebeat/edx-logs
         read_only: true
     depends_on:
       - kafka
-    network_mode: "host"
 
   elastic:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.5.0
@@ -40,36 +33,15 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - cluster.name=docker-cluster
       - discovery.type=single-node
-    network_mode: "host"
-    volumes:
-      - data03:/usr/share/elasticsearch/data:rw
   
   kibana:
-    # build:
-    #   context: kibana/
-    #   args:
-    #     ELK_VERSION: $ELK_VERSION
     image: docker.elastic.co/kibana/kibana:7.5.0
     volumes:
       - type: bind
-        source: ./kibana/config/kibana.yml
+        source: ./build/kibana/config/kibana.yml
         target: /usr/share/kibana/config/kibana.yml
         read_only: true
     ports:
       - "5601:5601"
     depends_on:
       - elastic
-    network_mode: "host"
-
-  # videologparser:
-  #   build:
-  #     context: video_events_processor/
-  #   depends_on: 
-  #     - kafka
-  #     - filebeat
-  #     - elastic
-  #   network_mode: "host"
-
-volumes:
-  data03:
-    driver: local

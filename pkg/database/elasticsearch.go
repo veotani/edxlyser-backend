@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"kafka-log-processor/pkg/models"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -42,13 +43,28 @@ func (r *connectionRetrier) Retry(ctx context.Context, retry int, req *http.Requ
 	return wait, stop, nil
 }
 
+func connect(host string, port int) (*elastic.Client, error) {
+	for {
+		elasticURL := "http://" + host + ":" + strconv.Itoa(port)
+		client, err := elastic.NewClient(
+			elastic.SetURL(elasticURL),
+			elastic.SetRetrier(newConnectionRetrier()),
+		)
+		if err != nil {
+			if elastic.IsConnErr(err) {
+				log.Println("no elasticsearch instance avaliable, retrying connection in 5 seconds")
+				time.Sleep(time.Second * 5)
+				continue
+			}
+			return nil, err
+		}
+		return client, err
+	}
+}
+
 // Connect to elasticsearch
 func (es *ElasticService) Connect(host string, port int) error {
-	elasticURL := "http://" + host + ":" + strconv.Itoa(port)
-	client, err := elastic.NewClient(
-		elastic.SetURL(elasticURL),
-		elastic.SetRetrier(newConnectionRetrier()),
-	)
+	client, err := connect(host, port)
 	if err != nil {
 		return err
 	}

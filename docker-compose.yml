@@ -45,3 +45,11 @@ services:
       - "5601:5601"
     depends_on:
       - elastic
+    
+  video_parser:
+    build:
+      dockerfile: ./build/video_parser/Dockerfile
+      context: .
+      # context: ./build/video_parser/
+    depends_on: 
+      - kibana

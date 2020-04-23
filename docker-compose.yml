@@ -50,6 +50,45 @@ services:
     build:
       dockerfile: ./build/video_parser/Dockerfile
       context: .
-      # context: ./build/video_parser/
+    depends_on: 
+      - kibana
+
+  bookmarks_parser:
+    build:
+      dockerfile: ./build/bookmarks_parser/Dockerfile
+      context: .
+    depends_on: 
+      - kibana
+
+  links_parser:
+    build:
+      dockerfile: ./build/links_parser/Dockerfile
+      context: .
+    depends_on: 
+      - kibana
+
+  problem_parser:
+    build:
+      dockerfile: ./build/problem_parser/Dockerfile
+      context: .
+    depends_on: 
+      - kibana
+
+  sequential_parser:
+    build:
+      dockerfile: ./build/sequential_parser/Dockerfile
+      context: .
+    depends_on: 
+      - kibana
+
+  structure_parser:
+    build:
+      dockerfile: ./build/structure_parser/Dockerfile
+      context: .
+    volumes:
+      - type: bind
+        source: structures
+        target: /go/src/kafka-log-processor/structures
+        read_only: true
     depends_on: 
       - kibana

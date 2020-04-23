@@ -1,0 +1,94 @@
+version: '3.2'
+
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPICS: "VideoEvents:1:1,TestEvents:1:1,SequentialEvents:1:1,BookmarksEvents:1:1,LinksEvents:1:1"
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  filebeat:
+    build:
+      context: ./build/filebeat/
+    volumes:
+      - ./build/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - type: bind
+        source: ./build/logs
+        target: /usr/share/filebeat/edx-logs
+        read_only: true
+    depends_on:
+      - kafka
+
+  elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.0
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - cluster.name=docker-cluster
+      - discovery.type=single-node
+  
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.5.0
+    volumes:
+      - type: bind
+        source: ./build/kibana/config/kibana.yml
+        target: /usr/share/kibana/config/kibana.yml
+        read_only: true
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elastic
+    
+  video_parser:
+    build:
+      dockerfile: ./build/video_parser/Dockerfile
+      context: .
+    depends_on: 
+      - kibana
+
+  bookmarks_parser:
+    build:
+      dockerfile: ./build/bookmarks_parser/Dockerfile
+      context: .
+    depends_on: 
+      - kibana
+
+  links_parser:
+    build:
+      dockerfile: ./build/links_parser/Dockerfile
+      context: .
+    depends_on: 
+      - kibana
+
+  problem_parser:
+    build:
+      dockerfile: ./build/problem_parser/Dockerfile
+      context: .
+    depends_on: 
+      - kibana
+
+  sequential_parser:
+    build:
+      dockerfile: ./build/sequential_parser/Dockerfile
+      context: .
+    depends_on: 
+      - kibana
+
+  structure_parser:
+    build:
+      dockerfile: ./build/structure_parser/Dockerfile
+      context: .
+    volumes:
+      - type: bind
+        source: structures
+        target: /go/src/kafka-log-processor/structures
+        read_only: true
+    depends_on: 
+      - kibana

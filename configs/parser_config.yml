@@ -1,7 +1,7 @@
 elastic:
-    host: "localhost"
+    host: "elastic"
     port: 9200
 
 kafka:
-    host: "localhost"
+    host: "kafka"
     port: 9092

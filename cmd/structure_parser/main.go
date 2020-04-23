@@ -13,7 +13,7 @@ import (
 )
 
 func getUnparsedStructureFileName() string {
-	files, err := ioutil.ReadDir("./")
+	files, err := ioutil.ReadDir("./structures")
 	if err != nil {
 		log.Fatal(err)
 	}

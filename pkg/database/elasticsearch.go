@@ -1,15 +1,18 @@
 package database
 
+// ElasticSearch Service structure.
+// Method `Connect` is trying to connect in an infinite loop,
+// because this project uses docker and container needs some
+// time to initialize.
+
 import (
 	"context"
-	"kafka-log-processor/pkg/models"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/olivere/elastic"
-	edxstruct "github.com/veotani/edx-structure-json"
 )
 
 // Index names
@@ -69,77 +72,5 @@ func (es *ElasticService) Connect(host string, port int) error {
 		return err
 	}
 	es.client = client
-	return nil
-}
-
-// AddCourseStructure adds information of course structure
-func (es ElasticService) AddCourseStructure(course edxstruct.Course) error {
-	_, err := es.client.Index().
-		Index(CourseStructureIndexName).
-		BodyJson(course).
-		Do(context.Background())
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// AddVideoEventDescription adds information of a parsed log into elasticsearch
-func (es ElasticService) AddVideoEventDescription(videoEventDescription models.VideoEventDescription) error {
-	_, err := es.client.Index().
-		Index(VideoEventDescriptionIndexName).
-		BodyJson(videoEventDescription).
-		Do(context.Background())
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// AddBooksmarkEventDescription adds information of a parsed log into elasticsearch
-func (es ElasticService) AddBooksmarkEventDescription(booksmarkEventDescription models.BookmarksEventDescription) error {
-	_, err := es.client.Index().
-		Index(BookmarsEventDescriptionIndexName).
-		BodyJson(booksmarkEventDescription).
-		Do(context.Background())
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// AddLinkEventDescription adds information of a parsed log into elasticsearch
-func (es ElasticService) AddLinkEventDescription(linkEventDescription models.LinkEventDescription) error {
-	_, err := es.client.Index().
-		Index(LinkEventDescriptionIndexName).
-		BodyJson(linkEventDescription).
-		Do(context.Background())
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// AddProblemEventDescription adds information of a parsed log into elasticsearch
-func (es ElasticService) AddProblemEventDescription(problemEventDescription models.ProblemEventDescription) error {
-	_, err := es.client.Index().
-		Index(ProblemEventDescriptionIndexName).
-		BodyJson(problemEventDescription).
-		Do(context.Background())
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// AddSequentialMoveEventDescription adds information of a parsed log into elasticsearch
-func (es ElasticService) AddSequentialMoveEventDescription(sequentialMoveEventDescription models.SequentialMoveEventDescription) error {
-	_, err := es.client.Index().
-		Index(SequentialEventDescriptionIndexName).
-		BodyJson(sequentialMoveEventDescription).
-		Do(context.Background())
-	if err != nil {
-		return err
-	}
 	return nil
 }

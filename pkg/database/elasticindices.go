@@ -1,5 +1,7 @@
 package database
 
+// Index creation rules and mappings
+
 import "context"
 
 // CreateVideoIndexIfNotExists creates index for video events

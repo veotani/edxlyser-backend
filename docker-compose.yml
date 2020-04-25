@@ -92,3 +92,12 @@ services:
         read_only: true
     depends_on: 
       - kibana
+
+  analysis_server:
+    ports:
+      - "8080:8080"
+    build:
+      dockerfile: ./build/analysis_server/Dockerfile
+      context: .
+    depends_on: 
+      - kibana

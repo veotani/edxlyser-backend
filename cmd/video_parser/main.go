@@ -15,12 +15,14 @@ func main() {
 	}
 
 	kafkaService := kafka.NewVideoTopicKafka(config.Kafka.Host, config.Kafka.Port)
-
 	elastic := database.ElasticService{}
 	err = elastic.Connect(config.Elastic.Host, config.Elastic.Port)
 	if err != nil {
-		log.Panicln("Cannot connect to ElasticSearch")
-		log.Fatalln(err)
+		log.Panicf("cannot connect to ElasticSearch: %v", err)
+	}
+	err = elastic.CreateVideoIndexIfNotExists()
+	if err != nil {
+		log.Panicf("cannot create video index: %v", err)
 	}
 
 	for {

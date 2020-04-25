@@ -19,8 +19,12 @@ func main() {
 	elastic := database.ElasticService{}
 	err = elastic.Connect(config.Elastic.Host, config.Elastic.Port)
 	if err != nil {
-		log.Panicln("Cannot connect to ElasticSearch")
-		log.Fatalln(err)
+		log.Panicf("can't connect to elasticsearch: %v", err)
+	}
+
+	err = elastic.CreateLinksIndexIfNotExists()
+	if err != nil {
+		log.Panicf("can't create links index: %v", err)
 	}
 
 	for {

@@ -42,6 +42,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	err = es.CreateStructureIndexIfNotExists()
+	if err != nil {
+		log.Panicf("can't create structure index: %v", err)
+	}
+
 	for {
 		fname := getUnparsedStructureFileName()
 		if fname == "" {

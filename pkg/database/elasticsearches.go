@@ -176,3 +176,32 @@ func (es *ElasticService) GetAllCourseIDsWithStructureAndLogs() ([]string, error
 
 	return result, nil
 }
+
+// GetSortedVideoEventsForVideo gets video events where video_id is videoID and
+// sorts them by ascending video time.
+func (es *ElasticService) GetSortedVideoEventsForVideo(videoID string) ([]models.VideoEventDescription, error) {
+	if es.client == nil {
+		return nil, errors.New("You need to connect to ElasticSearch first")
+	}
+	searchResult, err := es.client.
+		Search().
+		Index(VideoEventDescriptionIndexName).
+		Query(elastic.NewTermQuery("video_id", videoID)).
+		Sort("video_time", true).
+		Do(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]models.VideoEventDescription, 0)
+	var videoEventObject models.VideoEventDescription
+	for _, searchRes := range searchResult.Each(reflect.TypeOf(videoEventObject)) {
+		if videoEvent, ok := searchRes.(models.VideoEventDescription); ok {
+			result = append(result, videoEvent)
+		} else {
+			return nil, errors.New("Couldn't parse video event description index")
+		}
+	}
+
+	return result, nil
+}

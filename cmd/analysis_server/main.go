@@ -19,8 +19,7 @@ func main() {
 	es := database.ElasticService{}
 	err = es.Connect(config.Elastic.Host, config.Elastic.Port)
 	if err != nil {
-		log.Println("Cannot connect to ElasticSearch")
-		log.Fatalln(err)
+		log.Panicf("can't connect to ElasticSearch: %v", err)
 	}
 
 	analysis, err := analysers.New(config)
@@ -30,10 +29,34 @@ func main() {
 
 	courseIDsWithLogsAndStructuresHandle := GetCourseIDsHandleFunction(&es)
 	usersRoutesCurversHandle := GetUsersRoutesCurves(*analysis)
+	usersWatchingsCurveHandle := GetUsersWatchingCurve(*analysis)
 
 	http.HandleFunc("/course-ids-with-logs-and-structs", courseIDsWithLogsAndStructuresHandle)
 	http.HandleFunc("/course-routes", usersRoutesCurversHandle)
+	http.HandleFunc("/users-watchings", usersWatchingsCurveHandle)
 	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+func GetUsersWatchingCurve(analysis analysers.Analyser) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		setupResponse(&w, r)
+		if (*r).Method == "OPTIONS" {
+			return
+		}
+		videoID := r.URL.Query()["video_id"]
+		points, err := analysis.GetAnalyseUserVideoWatchings(videoID[0])
+		fmt.Println(videoID[0])
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		b, err := json.Marshal(points)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		fmt.Fprintf(w, string(b))
+	}
 }
 
 // GetCourseIDsHandleFunction generates function that writes response of course ids with logs and structures
@@ -63,8 +86,6 @@ func GetUsersRoutesCurves(analysis analysers.Analyser) func(http.ResponseWriter,
 			return
 		}
 		course := r.URL.Query()["course"]
-		fmt.Println(course[0])
-		fmt.Println(course)
 		points, err := analysis.GetCourseUsersRoute(course[0])
 		if err != nil {
 			log.Println(err)

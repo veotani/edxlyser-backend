@@ -24,7 +24,7 @@ func getUnparsedStructureFileName() string {
 			continue
 		}
 		if fname[len(fname)-7:] == ".tar.gz" {
-			return fname
+			return "./structures/" + fname
 		}
 	}
 

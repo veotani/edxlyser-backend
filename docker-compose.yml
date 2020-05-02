@@ -87,9 +87,9 @@ services:
       context: .
     volumes:
       - type: bind
-        source: structures
+        source: ./structures
         target: /go/src/kafka-log-processor/structures
-        read_only: true
+        read_only: false
     depends_on: 
       - kibana
 

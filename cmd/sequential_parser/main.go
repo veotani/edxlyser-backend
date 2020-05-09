@@ -20,6 +20,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	err = es.CreateSequentialIndexIfNotExists()
+	if err != nil {
+		log.Panicf("can't create sequential index: %v", err)
+	}
+
 	for {
 		eventLog, err := kafkaService.NextMessage()
 		if err != nil {

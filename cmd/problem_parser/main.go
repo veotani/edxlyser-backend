@@ -21,6 +21,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	err = es.CreateProblemIndexIfNotExists()
+	if err != nil {
+		log.Panicf("can't create problem index: %v", err)
+	}
+
 	for {
 		eventLog, err := kafkaService.NextMessage()
 		if err != nil {

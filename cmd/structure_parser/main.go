@@ -24,7 +24,7 @@ func getUnparsedStructureFileName() string {
 			continue
 		}
 		if fname[len(fname)-7:] == ".tar.gz" {
-			return fname
+			return "./structures/" + fname
 		}
 	}
 
@@ -40,6 +40,11 @@ func main() {
 	es := database.ElasticService{}
 	if err = es.Connect(config.Elastic.Host, config.Elastic.Port); err != nil {
 		log.Fatal(err)
+	}
+
+	err = es.CreateStructureIndexIfNotExists()
+	if err != nil {
+		log.Panicf("can't create structure index: %v", err)
 	}
 
 	for {

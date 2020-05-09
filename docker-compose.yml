@@ -87,8 +87,17 @@ services:
       context: .
     volumes:
       - type: bind
-        source: structures
+        source: ./structures
         target: /go/src/kafka-log-processor/structures
-        read_only: true
+        read_only: false
+    depends_on: 
+      - kibana
+
+  analysis_server:
+    ports:
+      - "8080:8080"
+    build:
+      dockerfile: ./build/analysis_server/Dockerfile
+      context: .
     depends_on: 
       - kibana

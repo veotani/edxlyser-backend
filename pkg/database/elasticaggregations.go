@@ -1,14 +1,13 @@
 package database
 
+// Aggregations that are used in this project
+
 import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
-	"reflect"
 
 	"github.com/olivere/elastic"
-	edxstructure "github.com/veotani/edx-structure-json"
 )
 
 // GetUniqueStringFieldValuesInIndex returns all possible values of field fieldName in index indexName
@@ -68,54 +67,4 @@ func (es *ElasticService) GetUniqueStringFieldValuesInIndexWithFilter(indexName 
 		}
 	}
 	return result, nil
-}
-
-// GetCourseStructure gets structure for course with course code = courseCode and course run = courseRun
-func (es *ElasticService) GetCourseStructure(courseCode string) (edxstructure.Course, error) {
-	searchResults, err := es.client.
-		Search().
-		Index(CourseStructureIndexName).
-		Query(elastic.NewTermQuery("course_code.keyword", courseCode)).
-		Do(context.Background())
-	if err != nil {
-		return edxstructure.Course{}, err
-	}
-	var course edxstructure.Course
-	for _, course := range searchResults.Each(reflect.TypeOf(course)) {
-		return course.(edxstructure.Course), nil
-	}
-	return edxstructure.Course{}, fmt.Errorf("No structures for course %v was found", courseCode)
-}
-
-// GetUserVideoAndProblemEventsTimes gets all video events and problem events logs for user with username and gets
-// their IDs and timestamps
-func (es *ElasticService) GetUserVideoAndProblemEventsTimes(username string, courseID string) ([]UserProblemAndVideoEventsIDsAndTime, error) {
-	res, err := es.client.
-		Search().
-		Index(VideoEventDescriptionIndexName).
-		Index(ProblemEventDescriptionIndexName).
-		Query(elastic.NewBoolQuery().Must(
-			elastic.NewTermQuery("username", username),
-			elastic.NewTermQuery("course_id", courseID),
-		)).
-		Size(1e4).
-		Do(context.Background())
-	if err != nil {
-		return nil, err
-	}
-	if res.Hits.TotalHits.Relation == "gte" {
-		log.Println("WARN: Query doesnt get all the documents at the moment. It's time to add iterating over pages.")
-	}
-	var a UserProblemAndVideoEventsIDsAndTime
-
-	videoAndProblemIDsAdnEventTimes := make([]UserProblemAndVideoEventsIDsAndTime, 0)
-	for _, r := range res.Each(reflect.TypeOf(a)) {
-		result, ok := r.(UserProblemAndVideoEventsIDsAndTime)
-		if !ok {
-			log.Println("WARN: error while converting search results")
-		} else {
-			videoAndProblemIDsAdnEventTimes = append(videoAndProblemIDsAdnEventTimes, result)
-		}
-	}
-	return videoAndProblemIDsAdnEventTimes, nil
 }

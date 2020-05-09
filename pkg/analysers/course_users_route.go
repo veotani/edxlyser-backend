@@ -3,28 +3,11 @@ package analysers
 import (
 	"errors"
 	"fmt"
-	"kafka-log-processor/configs"
 	"kafka-log-processor/pkg/database"
 	"kafka-log-processor/pkg/models"
 	"log"
 	"strings"
 )
-
-// Analyser contains analysis methods on logs
-type Analyser struct {
-	elasticService database.ElasticService
-}
-
-// New constructs analyser connected to ES
-func New(config configs.ParserConfig) (*Analyser, error) {
-	analyser := Analyser{}
-	analyser.elasticService = database.ElasticService{}
-	err := analyser.elasticService.Connect(config.Elastic.Host, config.Elastic.Port)
-	if err != nil {
-		return nil, err
-	}
-	return &analyser, nil
-}
 
 // GetCourseUsersRoute returns points for plot that shows users route on specified course.
 // course must have format: "course-v1:org+CourseCode+CourseRun"

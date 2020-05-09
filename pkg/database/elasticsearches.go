@@ -188,11 +188,15 @@ func (es *ElasticService) GetSortedVideoEventsForVideo(videoID string) ([]models
 		Index(VideoEventDescriptionIndexName).
 		Query(elastic.NewTermQuery("video_id", videoID)).
 		Sort("video_time", true).
+		Size(1e4).
 		Do(context.Background())
 	if err != nil {
 		return nil, err
 	}
 
+	if searchResult.Hits.TotalHits.Relation == "gte" {
+		log.Println("WARN: Query doesnt get all the documents at the moment. It's time to add iterating over pages.")
+	}
 	result := make([]models.VideoEventDescription, 0)
 	var videoEventObject models.VideoEventDescription
 	for _, searchRes := range searchResult.Each(reflect.TypeOf(videoEventObject)) {
